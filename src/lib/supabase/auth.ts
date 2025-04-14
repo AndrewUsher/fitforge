@@ -1,5 +1,5 @@
 import { createClient } from './client'
-import { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
+import { Session, AuthChangeEvent } from '@supabase/supabase-js'
 
 // Create a single Supabase client instance
 const supabase = createClient()
