@@ -1,71 +1,15 @@
-'use client'
+import { redirect } from 'next/navigation'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import SignOutButton from '@/components/SignOutButton'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { User, Session } from '@supabase/supabase-js'
-import { getSession, signOut } from '@/lib/supabase/auth'
+export default async function Dashboard() {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user }, error } = await supabase.auth.getUser()
 
-export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
-
-  useEffect(() => {
-    const fetchSession = async () => {
-      try {
-        const { session, error } = await getSession()
-        
-        if (error) {
-          throw error
-        }
-        
-        console.log('Session data:', session)
-        
-        if (session) {
-          setSession(session)
-          setUser(session.user)
-        } else {
-          console.log('No active session found')
-          router.push('/auth')
-        }
-      } catch (error) {
-        console.error('Error fetching session:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchSession()
-  }, [router])
-
-  const handleSignOut = async () => {
-    try {
-      const { error } = await signOut()
-      if (error) throw error
-      
-      router.push('/auth')
-      router.refresh()
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
+  if (error || !user) {
+    redirect('/auth')
   }
 
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">Loading...</p>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <p className="text-lg">No authenticated user found. Redirecting...</p>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -78,12 +22,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center">
-              <button
-                onClick={handleSignOut}
-                className="rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
-              >
-                Sign out
-              </button>
+              <SignOutButton />
             </div>
           </div>
         </div>
@@ -103,13 +42,8 @@ export default function Dashboard() {
                 <div className="space-y-6">
                   <div>
                     <h4 className="text-sm font-medium text-gray-500">User Information</h4>
-                    <p className="mt-1 text-sm text-gray-900">Email: {user?.email}</p>
-                    <p className="mt-1 text-sm text-gray-900">User ID: {user?.id}</p>
-                    {session && (
-                      <p className="mt-1 text-sm text-gray-900">
-                        Session Valid Until: {new Date(session.expires_at! * 1000).toLocaleString()}
-                      </p>
-                    )}
+                    <p className="mt-1 text-sm text-gray-900">Email: {user.email}</p>
+                    <p className="mt-1 text-sm text-gray-900">User ID: {user.id}</p>
                   </div>
                 </div>
               </div>
