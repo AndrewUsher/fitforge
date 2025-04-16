@@ -1,22 +1,28 @@
-import { redirect } from 'next/navigation'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import SignOutButton from '@/components/SignOutButton'
-import Link from 'next/link'
-import { 
-  HomeIcon, 
-  UserCircleIcon, 
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import SignOutButton from "@/components/SignOutButton";
+import Link from "next/link";
+import {
+  HomeIcon,
+  UserCircleIcon,
   ClipboardDocumentListIcon,
   FlagIcon,
-  PlusCircleIcon
-} from '@heroicons/react/24/outline'
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline";
+import { getUserProfile } from "@/lib/supabase/profile";
+import GoalCard from "@/components/GoalCard";
 
 export default async function Dashboard() {
-  const supabase = await createSupabaseServerClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  console.log({user})
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  const { goals } = await getUserProfile(supabase);
+  console.log({ user });
 
   if (error || !user) {
-    redirect('/auth')
+    redirect("/auth");
   }
 
   return (
@@ -58,15 +64,21 @@ export default async function Dashboard() {
             <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-5 sm:p-6">
               <div className="md:grid md:grid-cols-3 md:gap-6">
                 <div className="md:col-span-1">
-                  <h3 className="text-xl font-semibold text-white">Welcome Back!</h3>
+                  <h3 className="text-xl font-semibold text-white">
+                    Welcome Back!
+                  </h3>
                   <p className="mt-1 text-sm text-indigo-100">
                     Track your progress and achieve your fitness goals.
                   </p>
                 </div>
                 <div className="mt-5 md:col-span-2 md:mt-0">
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-indigo-100">User Information</h4>
-                    <p className="mt-1 text-sm text-white">Email: {user.email}</p>
+                    <h4 className="text-sm font-medium text-indigo-100">
+                      User Information
+                    </h4>
+                    <p className="mt-1 text-sm text-white">
+                      Email: {user.email}
+                    </p>
                     <p className="mt-1 text-sm text-white/80">ID: {user.id}</p>
                   </div>
                 </div>
@@ -80,7 +92,9 @@ export default async function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <ClipboardDocumentListIcon className="h-6 w-6 text-indigo-600 mr-2" />
-                    <h3 className="text-lg font-medium text-gray-900">My Workouts</h3>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      My Workouts
+                    </h3>
                   </div>
                   <button className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition-colors">
                     <PlusCircleIcon className="h-5 w-5 mr-1" />
@@ -91,7 +105,9 @@ export default async function Dashboard() {
               <div className="px-4 py-12 sm:px-6 text-center">
                 <ClipboardDocumentListIcon className="mx-auto h-12 w-12 text-gray-300" />
                 <p className="mt-4 text-gray-500">No workouts logged yet</p>
-                <p className="mt-2 text-sm text-gray-400">Start tracking your fitness journey today!</p>
+                <p className="mt-2 text-sm text-gray-400">
+                  Start tracking your fitness journey today!
+                </p>
               </div>
             </div>
 
@@ -100,7 +116,9 @@ export default async function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
                     <FlagIcon className="h-6 w-6 text-indigo-600 mr-2" />
-                    <h3 className="text-lg font-medium text-gray-900">My Goals</h3>
+                    <h3 className="text-lg font-medium text-gray-900">
+                      My Goals
+                    </h3>
                   </div>
                   <button className="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition-colors">
                     <PlusCircleIcon className="h-5 w-5 mr-1" />
@@ -109,14 +127,23 @@ export default async function Dashboard() {
                 </div>
               </div>
               <div className="px-4 py-12 sm:px-6 text-center">
-                <FlagIcon className="mx-auto h-12 w-12 text-gray-300" />
-                <p className="mt-4 text-gray-500">No goals set yet</p>
-                <p className="mt-2 text-sm text-gray-400">Create your first fitness goal to get started!</p>
+                {goals?.length === 0 && (
+                  <>
+                    <FlagIcon className="mx-auto h-12 w-12 text-gray-300" />
+                    <p className="mt-4 text-gray-500">No goals set yet</p>
+                    <p className="mt-2 text-sm text-gray-400">
+                      Create your first fitness goal to get started!
+                    </p>
+                  </>
+                )}
+                {goals?.length
+                  ? goals.map((goal) => <GoalCard key={goal.id} goal={goal} />)
+                  : null}
               </div>
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
-} 
+  );
+}

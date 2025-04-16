@@ -6,7 +6,7 @@ interface GoalCardProps {
 
 export default function GoalCard({ goal }: GoalCardProps) {
     return (
-        <div className="border rounded-lg p-4">
+        <div className="border rounded-lg p-4 mb-4">
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="font-medium">{goal.title}</h3>
