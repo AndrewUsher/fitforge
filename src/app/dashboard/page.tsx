@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import SignOutButton from '@/components/SignOutButton'
+import Link from 'next/link'
 
 export default async function Dashboard() {
   const supabase = await createSupabaseServerClient()
@@ -10,7 +11,6 @@ export default async function Dashboard() {
     redirect('/auth')
   }
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow">
@@ -19,6 +19,20 @@ export default async function Dashboard() {
             <div className="flex">
               <div className="flex flex-shrink-0 items-center">
                 <h1 className="text-xl font-bold">FitForge</h1>
+              </div>
+              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+                <Link
+                  href="/dashboard"
+                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/dashboard/profile"
+                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
+                >
+                  Profile
+                </Link>
               </div>
             </div>
             <div className="flex items-center">
